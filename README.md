@@ -189,11 +189,107 @@ Can we generalize the Tree Search concept to go deeper into the tree so that we 
     ![image7]
 
 
-
-
 ## AlphaZero 1: Guided Tree Search <a name="guided_tree_search"></a> 
+A pure Monte Carlo search for Go would never be able to accumulate enough statistics to be reliable. So, we need to find a better way to improve Monte Carlo tree search.
+
+![image8]
+ 
+### Deep neural networks:
+- We introduce an **expert policy &pi;<sub>&theta;</sub>**. Actor tells us the **probability of the next action** by an expert player,
+- We introduce an **expert critic v<sub>&theta;</sub>**. Critic tells us what the **expected score** is from the perspective of the current player.
+
+- The idea is that
+    - using the **policy**, we can focus on **exploring actions** that an expert is likely to play.
+    - using the **critic** will allow us to **estimate the outcome of a game** without running a simulation.
+
+- Both the **policy and the critic come from a single neural network**, and thus, they share the **same weights &theta;** (see AlphaZero paper)
+- Now, we can choose an action (using the policy) and optimize the policy
+- To do this, we perform a Monte Carlo tree search, utilizing both the policy and the critic, so that the resulting moves are stronger than the policy alone, then we can use it to update the policy.
+
+    ![image9]
+
+### Example Tic-Tac-Toe:
+- Given a state, we want to find out what the best action is.
+- Just like the case of Monte-Carlo tree search, we consider all the possible actions, and assign three numbers, U, N, and V to each of them.
+- The U function is a bit different from the ones from normal Monte Carlo tree search.
+    - We have the same first term, V again, and it controls exploitation. We'll see that this V will largely come from the critic.
+    - The second term is the exploration term that encourages visiting nodes with small visit counts. This is proportional to the policy. so that moves that are more likely to be played by an expert will be favored. Notice that we also introduced a hyperparameter C, that controls the level of exploration.
+
+    ![image10]
+
+- Let's see the search in action.
+    - In the beginning, all the U's are zero.
+    - So we randomly choose an action.
+    - Then we can compute an estimated outcome using the critic **v<sub>&theta;</sub>**, and update all the values in that node.
+    - The total number of visits is now **N<sub>tot</sub>=1**.
+    - So, the exploration terms for all the other branches need to be updated **U=c&pi;<sub>&theta;</sub>**
+
+    ![image11]
+
+    - To iterate this process, we need to compare all the U's, and visit the branch with the largest U again.
+    - The search may lead us to a different branch.
+    - Again, we update the expected outcome using the critic, and the U function for the other branches.
+
+    ![image12]
+
+    - As this process is repeated, we may revisit the same branch again, what do we do then?
+    - In order to get more information, we can expand this node into all the possible subsequent states, each with their own values U, N, and V, all initialized to zero.
+    - Then we can choose an action with the maximum U, and compute the expected outcome from the critic.
+
+    ![image13]
+
+    - Afterward, we can go back to the original node and update the expected outcome.
+    - The V can be computed as the average of the initial estimate through the critic, together with the results of exploring all the children nodes.
+    - Notice that when computing the average for V, there's a **negative sign in front of the contributions from the children nodes**.
+    - This is necessary, because by convention, V is an estimate from the perspective of the current player and going to a trial node, changes the player.
+
+    ![image14]
+
+    - After many iterations, we might reach a terminal state where the game ends.
+    - Then, instead of using the critic for estimating the expected outcome, we simply use the actual outcome.
+    - We can repeat this process for a fixed number of games and total.
+    - Just like in Monte Carlo tree search, to choose the best action, we can simply pick the **action with the highest visit counts**,
+    - Or if we want to encourage more exploration, we can choose an action stochastically with a probability proportional to the number of visits for each action, like the equation here:
+
+    ![image15]
+
 
 ## AlphaZero 2: Self-Play Training <a name="self_playing"></a> 
+- Now that we have an **improved Monte-Carlo Tree Search** guided by an **expert policy and critic**,
+how do we update them?
+    - Start with an empty board of Tic-Tac-Toe,
+    - We perform **Monte-Carlo Tree Search** using the **current policy and critic**.
+    - In the end we get a list of visit counts for each actions **N<sub>a</sub>**,
+    - This list can be converted into a list of probabilities **p<sub>a</sub><sup>(t)</sup>** for each action at every time step.
+    - After choosing the first action, we can perform Monte-Carlo Tree Search again.
+    - Now, we don't have to start from scratch because this current state is likely to have a very high visit counts and many of the subsequent states should have been explored already.
+    - So, we can iterate the Monte-Carlo Tree Search algorithm fairly efficiently.
+    - Eventually, we repeat this process and arrive at the end game.
+    - In this case, the final score is z equals **z=+1**.
+    - The **final outcome** can be **compared to** the **expected outcome** computed at **each time step** using the **critic**.
+    - We also computed the probability of performing an action through the Monte-Carlo Tree Search at each time step, and that can be compared to the expert policy as well.
+    - The loss function **L<sub>&theta;</sub>** contains two terms:
+        - The first term is the square of the difference between the **prediction from the critic** and the **actual outcome**.
+        - The second term consists of the logarithm of the **policy** can be interpreted as an **entropy loss** between the **current policy** and the **probabilities computed through Monte-Carlo Tree Search**.
+    - Minimizing this term, forces the policy to be closer to the results of Monte-Carlo Tree Search, and thus, strengthening the actions predicted by the policy.
+    - Using the loss function, we can perform gradient descent to update both the policy and the critic.
+
+    ![image16]
+
+### AlphaZero Algorithm
+- Below you can find a summary of the AlphaZero alkgorithm
+
+    ![image17]
+
+### How does learning happen intuitively?
+- Starting from random critic and policy,the MCTS in AlphaZero should be not better than a standard Monte-Carlo Tree Search. How does it learn then?
+Answer:
+- In the beginning, the **critic is able to improve** because whenever we reach end game during the Tree Search,
+the **end game outcome is propagated in the tree** and the critic will be able to predict this outcome better and better.
+- After the **critic becomes less random**, the **policy will start to improve** as well.
+- As training goes on, the AlphaZero agent will **first learn how to play the end game** very well.
+- As the **end game improves**, the **mid game will improve** as well.
+- Eventually, the algorithm will be able to anticipate long sequences of expert moves, leading to an expert level of gameplay
 
 ## TicTacToe using AlphaZero - code <a name="tic_tac_toe_code"></a> 
 
