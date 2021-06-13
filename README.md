@@ -60,7 +60,7 @@ Let's introduce the concept of Alpha Zero
     - bringing together the best of both worlds, to solve challenging reinforcement learning problems
 
 ## Introduction of AlphaZero <a name="intro_alpha"></a> 
-In **2016**: researchers at DeepMind  introduced **new AI engine, AlphaGo** for the game of Go. The AI was able to beat a professional player LeeSedol. The breakthrough was significant, because go was far more complex than chess: the number of possible games is so high, that a professional go engine was believed to be way out of reach at that point, and human intuition was believed to be a key component in professional play. Still, performance in Alphago depends on **expert input** during the training step, and so the algorithm cannot be easily be transferred to other domains.
+In **2016**: researchers at DeepMind  introduced **new AI engine, AlphaGo** for the game of Go. The AI was able to beat a professional player Lee Sedol. The breakthrough was significant, because Go was far more complex than chess: the number of possible games is so high, that a professional go engine was believed to be way out of reach at that point, and human intuition was believed to be a key component in professional play. Still, performance in Alphago depends on **expert input** during the training step, and so the algorithm cannot be easily be transferred to other domains.
 
 This changed in **2017**, when the team at DeepMind updated their algorithm, and developed a **new engine called AlphaGo Zero**. This time, instead of depending on expert gameplay for the training, AlphaGo Zero **learned from playing against itself**, only knowing the rules of the game. More impressively, the algorithm was generic enough to be adapted to **chess** and **shogi** (also known as japanese chess). This leads to an entirely new framework for developing AI engines, and the researchers called their algorithm, simply as the **AlphaZero**.
 
@@ -68,7 +68,7 @@ The best part of the AlphaZero algorithm is **simplicity**:
     - it consists of a **Monte Carlo tree search**, 
     - guided by a **deep neural network**. 
 
-This is analogous to the way humans think about board games -- where professional players employ **hard calculations guides with intuitions**.
+This is analogous to the way humans think about board games -- where professional players combine **hard calculations with intuition**.
 
 - Paper [2017, Silver et al. Mastering the Game of Go without Human Knowledge --> AlphaGo Zero](https://discovery.ucl.ac.uk/id/eprint/10045895/1/agz_unformatted_nature.pdf)
 - Paper [2017, Silver et al., Mastering Chess and Shogi by Self-Play with aGeneral Reinforcement Learning Algorithm --> AlphaZero](https://arxiv.org/pdf/1712.01815.pdf)
@@ -76,8 +76,8 @@ This is analogous to the way humans think about board games -- where professiona
 ## Zero-Sum Game <a name="zero_sum_game"></a>  
 - **AlphaZero** is specialzed in so called **Zero-Sum games**.
 - Assumption: game contains no hidden information (no element of luck, winning or losing is entirely determined by skill)
-- This concept is applicable to games as simple as Tic-Tac-Toe to more complicated games such as chess and go.
-- Exmaple: Tic-Tac-Toe
+- This concept is applicable to games as simple as Tic-Tac-Toe to more complicated games such as chess and Go.
+- Example: Tic-Tac-Toe
     - Grid
     - 2 competing agents 
     - One agent's win is another agent's loss.
@@ -100,7 +100,7 @@ This is analogous to the way humans think about board games -- where professiona
 
 ### Rephrase everything in the language of reinforcement learning:
 - Sequence of states for the board game denoted by timestep **t**
-- Two players denoted by **+1** or **-1** (formula: **-1<sup>t</sup>**,
+- Two players denoted by **+1** or **-1** --> formula: **(-1)<sup>t</sup>**,
 - Player **+1** acts at all **even timesteps** and tries to maximize the final score plus +z,
 - Player **-1** aczs at all **odd timesteps** and tries to maximize final score -z.
 - **Common policy**:
@@ -114,8 +114,82 @@ This is analogous to the way humans think about board games -- where professiona
 - This is the basic idea behind AlphaZero, where we have one agent playing against itself along with one critic that self-improves as more and more games are played.
 
 ## Monte Carlo Tree Search 1 - Random Sampling <a name="Setup_Instructions"></a> tree_search_1)
+Given a **state in a zero sum game**, how do we find an **optimal policy**?
+
+### In theory: Brute Force
+-  Perform **brute force search**, going through all the possible moves and all the possible games that can be played, and then we can choose the ones with the best possible outcomes.
+- Problem: to many possibilities, brute force method **can become infeasible**.
+
+### Optimization 1: Random sampling
+- **Sample randomly a subset** of all the possible games.
+- Then for each action, compute the **expected outcome** by taking the **average of all the subsequent playouts** like this.
+- Add an extra **negative sign** so that the expected outcome is from the perspective of the current player.
+- Choose the **action with the largest expected score**, in this case **who plays across at the bottom corner**.
+
+    ![image3]
+
+### Optimization 2: Tree structure
+- This procedure sounds a little bit familiar: Trying to **compute the expected outcome** is analogous to **estimating the Q function**,
+- If we would have some guidance instead of full randomness we could better balance **random explorations with exploitations**.
+- Let's get systematic then, and look at all the possible moves **player 2** can take given the current state. There are six possibilities.
+- We can think of all the possibilities as part of a **tree structure**.
+- The goal is we want to **look at each branch of this** tree and focus on the **actions** that are more
+**promising** (vetter than just sample completely randomly).
+    - To do this we define three numbers for each branch of this tree: 
+        - **U**: number built up from amount of explorations (determined by N: branches with low visit counts increases U and are favored) and exploitation (determined by V)
+        - **N**: number of times visiting branch
+        - **V**: estimate of the expected outcome
+    - All the values are initialized to zero.
+    - In each iteration play a random game starting from a selective branch.
+    - The branch with the highest value of **U** will be chosen.
+- Example game:
+    - Initially, all the U's are zero, so we just randomly choose one of the six possible actions.
+    - Play a random game, and this time player 2 lost.
+    - So, V is updated to be **V=-1**, and the number of visit increased to **N=1**. 
+    - Total number of gameplay is updated to **N<sub>tot</sub>=1**.
+    - The **exploration part of the U function needs to be updated** for all the other branches.
+    - The largest U is now **U=1**, so going to the next iteration of gameplay, we need to choose one of the other five actions.
+    - We can then repeat this procedure until a **fixed number of total gameplays**, say 100 games is reached, and we might end up with something like this.
+    - We could choose the action with the highest U or V, but instead, we **choose an action with the highest visit counts**, which is usually associated with **good expected outcome** anyway, and it's a little bit **more reliable**.
+    - In this case the highest visit count is 21.
+    - This is the **move that we will choose** according to the **tree search**.
+
+    ![image4]
 
 ## Monte Carlo Tree Search 2 - Expansion and Back-propagation <a name="tree_search_2"></a> 
+Can we generalize the Tree Search concept to go deeper into the tree so that we can better anticipate a long sequence of moves?
+### Expansion and backpropagation
+- **Let's see it in action**: 
+    - First, we choose an **action that maximizes U**. 
+    - U is zero, so we randomly choose an action.
+    - We play a random game (turn blue player 1).
+    - Blue player won.
+    - So, we update V to **V=1**, **N=1**, **N<sub>tot</sub>=1**
+    - Then, all the U values in all the branches need to be updated.
+    - For the next iteration, we choose the branch with the **maximum U** (U=1.5 in this case).
+    - This time, the node has **already been visited previously** and we would like to get some **more information** by exploring **deeper into the tree structure**.
+    - So, instead of just playing another random game, we **consider all the possible next moves**.
+        - Again, we choose the action with the maximum U, they're all zero in this case. So, we randomly choose an action and play a random game.
+        - This time, the blue player won.
+        - So we update V and N and U in the second level. 
+    - Update the statistics on the previous node. This procedure is called **backpropagation**, where we go back up the tree to update all the variables.
+        - First: Increase total number of visits (N=2)
+        - Second: the expected outcome, V needs to be updated. We replace it by the average outcome of all the games that are played from this node keeping in mind that the outcome is from the perspective of the current player, orange in this case --> **V=0** (Because in the previous playout, the blue player won)
+        - N total needs to be updated with **N<sub>tot</sub>=2** 
+        - All the Us also needs to be updated.
+    - Now, we can repeat this process again and again until a fixed number of total games are played.
+    - Then to choose the next move, we pick the node with the highest visit count, 21 in this case.
+    - This is the **move that we will choose** according to the **tree search**.
+
+    ![image5]
+
+- One advantage of expansion and propagation is that if we want to utilize **Monte Carlo tree search again after making a move**, we **don't need to start from scratch**. As we can **reuse previous results** by replacing the top node with the chosen node for the next move and we can continue our Monte Carlo tree search.
+    ![image6]
+
+    ![image7]
+
+
+
 
 ## AlphaZero 1: Guided Tree Search <a name="guided_tree_search"></a> 
 
