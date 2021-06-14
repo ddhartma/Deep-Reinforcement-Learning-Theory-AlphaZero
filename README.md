@@ -1280,6 +1280,8 @@ the **end game outcome is propagated in the tree** and the critic will be able t
     ```
 
 ## Advanced TicTacToe with AlphaZero - Walkthrough <a name="tic_tac_toe_adv"></a> 
+- Check out the [Code-Walkthrough-Video](https://www.youtube.com/watch?time_continue=430&v=MOIk_BbCjRw&feature=emb_logo)
+- Open Jupyter Notebook ```alphazero-TicTacToe-advanced.ipynb```
 
 
 ## Setup Instructions <a name="Setup_Instructions"></a>
