@@ -36,7 +36,7 @@ Let's introduce the concept of Alpha Zero
 - [Acknowledgments](#Acknowledgments)
 - [Further Links](#Further_Links)
 
-## Introduction <a name="intro"></a>
+## Introduction <a id="intro"></a>
 - Reinforcement learning is **learning** what to do — **how to map situations to actions** — so as **to maximize a numerical reward** signal. The learner is not told which actions to take, but instead must discover which actions yield the most reward by trying them. (Sutton and Barto, [Reinforcement Learning: An Introduction](http://incompleteideas.net/book/the-book.html))
 - Deep reinforcement learning refers to approaches where the knowledge is represented with a deep neural network
 
@@ -59,7 +59,7 @@ Let's introduce the concept of Alpha Zero
     - how to combine value-based and policy-based methods
     - bringing together the best of both worlds, to solve challenging reinforcement learning problems
 
-## Introduction of AlphaZero <a name="intro_alpha"></a> 
+## Introduction of AlphaZero <a id="intro_alpha"></a> 
 In **2016**: researchers at DeepMind  introduced **new AI engine, AlphaGo** for the game of Go. The AI was able to beat a professional player Lee Sedol. The breakthrough was significant, because Go was far more complex than chess: the number of possible games is so high, that a professional go engine was believed to be way out of reach at that point, and human intuition was believed to be a key component in professional play. Still, performance in Alphago depends on **expert input** during the training step, and so the algorithm cannot be easily be transferred to other domains.
 
 This changed in **2017**, when the team at DeepMind updated their algorithm, and developed a **new engine called AlphaGo Zero**. This time, instead of depending on expert gameplay for the training, AlphaGo Zero **learned from playing against itself**, only knowing the rules of the game. More impressively, the algorithm was generic enough to be adapted to **chess** and **shogi** (also known as japanese chess). This leads to an entirely new framework for developing AI engines, and the researchers called their algorithm, simply as the **AlphaZero**.
@@ -73,7 +73,7 @@ This is analogous to the way humans think about board games -- where professiona
 - Paper [2017, Silver et al. Mastering the Game of Go without Human Knowledge --> AlphaGo Zero](https://discovery.ucl.ac.uk/id/eprint/10045895/1/agz_unformatted_nature.pdf)
 - Paper [2017, Silver et al., Mastering Chess and Shogi by Self-Play with aGeneral Reinforcement Learning Algorithm --> AlphaZero](https://arxiv.org/pdf/1712.01815.pdf)
 
-## Zero-Sum Game <a name="zero_sum_game"></a>  
+## Zero-Sum Game <a id="zero_sum_game"></a>  
 - **AlphaZero** is specialzed in so called **Zero-Sum games**.
 - Assumption: game contains no hidden information (no element of luck, winning or losing is entirely determined by skill)
 - This concept is applicable to games as simple as Tic-Tac-Toe to more complicated games such as chess and Go.
@@ -113,7 +113,7 @@ This is analogous to the way humans think about board games -- where professiona
 
 - This is the basic idea behind AlphaZero, where we have one agent playing against itself along with one critic that self-improves as more and more games are played.
 
-## Monte Carlo Tree Search 1 - Random Sampling <a name="Setup_Instructions"></a> tree_search_1)
+## Monte Carlo Tree Search 1 - Random Sampling <a id="Setup_Instructions"></a> tree_search_1)
 Given a **state in a zero sum game**, how do we find an **optimal policy**?
 
 ### In theory: Brute Force
@@ -156,7 +156,7 @@ Given a **state in a zero sum game**, how do we find an **optimal policy**?
 
     ![image4]
 
-## Monte Carlo Tree Search 2 - Expansion and Back-propagation <a name="tree_search_2"></a> 
+## Monte Carlo Tree Search 2 - Expansion and Back-propagation <a id="tree_search_2"></a> 
 Can we generalize the Tree Search concept to go deeper into the tree so that we can better anticipate a long sequence of moves?
 ### Expansion and backpropagation
 - **Let's see it in action**: 
@@ -189,7 +189,7 @@ Can we generalize the Tree Search concept to go deeper into the tree so that we 
     ![image7]
 
 
-## AlphaZero 1: Guided Tree Search <a name="guided_tree_search"></a> 
+## AlphaZero 1: Guided Tree Search <a id="guided_tree_search"></a> 
 A pure Monte Carlo search for Go would never be able to accumulate enough statistics to be reliable. So, we need to find a better way to improve Monte Carlo tree search.
 
 ![image8]
@@ -254,7 +254,7 @@ A pure Monte Carlo search for Go would never be able to accumulate enough statis
     ![image15]
 
 
-## AlphaZero 2: Self-Play Training <a name="self_playing"></a> 
+## AlphaZero 2: Self-Play Training <a id="self_playing"></a> 
 - Now that we have an **improved Monte-Carlo Tree Search** guided by an **expert policy and critic**,
 how do we update them?
     - Start with an empty board of Tic-Tac-Toe,
@@ -291,7 +291,7 @@ the **end game outcome is propagated in the tree** and the critic will be able t
 - As the **end game improves**, the **mid game will improve** as well.
 - Eventually, the algorithm will be able to anticipate long sequences of expert moves, leading to an expert level of gameplay
 
-## TicTacToe using AlphaZero - code <a name="tic_tac_toe_code"></a> 
+## TicTacToe using AlphaZero - code <a id="tic_tac_toe_code"></a> 
 ### Files in the repo
 - ***alphazero-TicTacToe.ipynb***: Jupyter notebook as the main file 
 - ***ConnectN.py***: Python file to implement a gameplay environment. Class containing game state, score the player.
@@ -1279,17 +1279,17 @@ the **end game outcome is propagated in the tree** and the critic will be able t
                 self.draw_move()
     ```
 
-## Advanced TicTacToe with AlphaZero - Walkthrough <a name="tic_tac_toe_adv"></a> 
+## Advanced TicTacToe with AlphaZero - Walkthrough <a id="tic_tac_toe_adv"></a> 
 - Check out the [Code-Walkthrough-Video](https://www.youtube.com/watch?time_continue=430&v=MOIk_BbCjRw&feature=emb_logo)
 - Open Jupyter Notebook ```alphazero-TicTacToe-advanced.ipynb```
 
 
-## Setup Instructions <a name="Setup_Instructions"></a>
+## Setup Instructions <a id="Setup_Instructions"></a>
 The following is a brief set of instructions on setting up a cloned repository.
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
-### Prerequisites: Installation of Python via Anaconda and Command Line Interaface <a name="Prerequisites"></a>
+### Prerequisites: Installation of Python via Anaconda and Command Line Interaface <a id="Prerequisites"></a>
 - Install [Anaconda](https://www.anaconda.com/distribution/). Install Python 3.7 - 64 Bit
 
 - Upgrade Anaconda via
@@ -1303,7 +1303,7 @@ $ conda upgrade --all
 $ export PATH="/path/to/anaconda/bin:$PATH"
 ```
 
-### Clone the project <a name="Clone_the_project"></a>
+### Clone the project <a id="Clone_the_project"></a>
 - Open your Command Line Interface
 - Change Directory to your project older, e.g. `cd my_github_projects`
 - Clone the Github Project inside this folder with Git Bash (Terminal) via:
@@ -1339,10 +1339,10 @@ seaborn = 0.8.1
 $ conda env list
 ```
 
-## Acknowledgments <a name="Acknowledgments"></a>
+## Acknowledgments <a id="Acknowledgments"></a>
 * This project is part of the Udacity Nanodegree program 'Deep Reinforcement Learning'. Please check this [link](https://www.udacity.com) for more information.
 
-## Further Links <a name="Further_Links"></a>
+## Further Links <a id="Further_Links"></a>
 
 Git/Github
 * [GitFlow](https://datasift.github.io/gitflow/IntroducingGitFlow.html)
